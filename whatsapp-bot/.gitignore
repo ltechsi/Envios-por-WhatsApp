@@ -1,0 +1,14 @@
+# Directorio de dependencias que SÍ deben ignorarse
+node_modules/
+venv/
+__pycache__/
+
+# Archivos grandes/temporales que SÍ deben ignorarse
+*.zip
+*.rar
+*.7z
+*.log
+
+# Archivos de configuración local que SÍ deben ignorarse
+.env
+

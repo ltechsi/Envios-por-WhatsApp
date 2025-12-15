@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envío de Certificado por WhatsApp</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            /* padding: 20px; */
+            /* border: 1px solid #ccc; */
+            border-radius: 8px;
+            font-size: 16px;
+            
+            position: relative; 
+            z-index: 1; 
+            background: none; 
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('assets/images/backgroundHome.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            opacity: 0.5; 
+        }
+
+        .content-container {
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.85); 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            
+        }
+
+        h1 {
+            font-size: 28px;
+            text-align: center;
+        }
+
+        input,
+        select,
+        button {
+            display: block;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            font-size: 18px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button-group button {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+        }
+
+        #downloadBtn {
+            background-color: #033d50;
+        }
+
+        #sendWhatsAppBtn {
+            background-color: #025320;
+        }
+
+        #searchBtn,
+        #sendAllBtn {
+            background-color: #babd11;
+            color: black;
+            padding: 10px;
+        }
+        
+        #confirmSendBtn {
+            background-color: #025320;
+            display: none;
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+        }
+
+        #previousBtn,
+        #nextBtn {
+            background-color: #6c757d;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+            font-size: 18px;
+        }
+
+        #documentList {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .document-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .document-item:last-child {
+            border-bottom: none;
+        }   
+
+        #downloadBtn {
+            display: none;
+        }
+
+        input[readonly] {
+            background-color: transparent;
+            border: none;
+            cursor: default;
+            color: inherit;
+            box-shadow: none;
+}
+    </style>
+</head>
+
+<body>
+    <div class="content-container">
+        <h1>CBR - Envío de Certificado por WhatsApp</h1>
+        <form id="documentForm">
+        <label for="numero">Número de Carátula:</label>
+        <input type="text" id="numero" name="numero" required>
+        <button type="button" id="searchBtn">Buscar</button>
+
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" readonly required>
+
+        <label for="rut">RUT:</label>
+        <input type="text" id="rut" name="rut" readonly required>
+
+        <label for="telefono">Teléfono:</label>
+        <input type="text" id="telefono" name="telefono" readonly required>
+
+        <label for="estado">Estado:</label>
+        <input type="text" id="estado" name="estado" readonly required>
+
+        <div class="button-group">
+            <button type="button" id="previousBtn">Anterior</button>
+            <button type="button" id="nextBtn">Siguiente</button>
+            <button type="button" id="downloadBtn">Descargar Documento</button>
+            <button type="button" id="sendWhatsAppBtn">Enviar por WhatsApp</button>
+        </div>
+    </form>
+
+    <hr>
+
+    <div id="massiveSendForm">
+        <h2>Envío Masivo</h2>
+        <p>Selecciona un rango de fechas para enviar documentos en estado CARDEX o DESPACHADO.</p>
+        <label for="startDate">Fecha de Inicio:</label>
+        <input type="date" id="startDate" name="startDate">
+
+        <label for="endDate">Fecha de Fin:</label>
+        <input type="date" id="endDate" name="endDate">
+
+        <div class="button-group">
+            <button type="button" id="sendAllBtn">Obtener Listado</button>
+            <button type="button" id="confirmSendBtn">Confirmar Envío Masivo</button>
+        </div>
+        
+    </div>
+
+    <div id="documentList"></div>
+    <div id="status"></div>
+
+    </div>
+    
+    
+
+    <script>
+        function populateForm(data) {
+            if (data.success) {
+                document.getElementById('numero').value = data.numero || '';
+                document.getElementById('nombre').value = data.nombre || '';
+                document.getElementById('rut').value = data.rut || '';
+
+                document.getElementById('telefono').value = data.telefono || '';
+                document.getElementById('estado').value = data.estado || '';
+                document.getElementById('status').textContent = 'Registro encontrado.';
+            } else {
+                document.getElementById('status').textContent = data.message || 'Registro no encontrado.';
+            }
+        }
+
+        // Event listener para el botón de BÚSQUEDA
+        document.getElementById('searchBtn').addEventListener('click', async function () {
+            const numero = document.getElementById('numero').value;
+            if (!numero) {
+                alert("Por favor, ingresa un Número de Carátula para buscar.");
+                return;
+            }
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Buscando registro...';
+            try {
+                const response = await fetch(`consultar-db.php?action=search&numero=${encodeURIComponent(numero)}`);
+                const data = await response.json();
+                populateForm(data);
+            } catch (error) {
+                statusDiv.textContent = 'Ocurrió un error al buscar el registro.';
+                console.error('Error en el fetch de búsqueda:', error);
+            }
+        });
+
+        // Event listener para el botón SIGUIENTE
+        document.getElementById('nextBtn').addEventListener('click', async function () {
+            const currentNumero = document.getElementById('numero').value;
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Cargando siguiente registro...';
+            try {
+                const response = await fetch(`consultar-db.php?action=next&numero=${encodeURIComponent(currentNumero)}`);
+                const data = await response.json();
+                populateForm(data);
+            } catch (error) {
+                statusDiv.textContent = 'Ocurrió un error al cargar el siguiente registro.';
+                console.error('Error en el fetch de siguiente:', error);
+            }
+        });
+
+        // Event listener para el botón ANTERIOR
+        document.getElementById('previousBtn').addEventListener('click', async function () {
+            const currentNumero = document.getElementById('numero').value;
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Cargando registro anterior...';
+            try {
+                const response = await fetch(`consultar-db.php?action=previous&numero=${encodeURIComponent(currentNumero)}`);
+                const data = await response.json();
+                populateForm(data);
+            } catch (error) {
+                statusDiv.textContent = 'Ocurrió un error al cargar el registro anterior.';
+                console.error('Error en el fetch de anterior:', error);
+            }
+        });
+
+        // Event listener para el botón de DESCARGA
+        document.getElementById('downloadBtn').addEventListener('click', function () {
+            const numero = document.getElementById('numero').value;
+            if (!numero) {
+                alert("Por favor, ingresa el Número de Carátula del documento a descargar.");
+                return;
+            }
+            const downloadUrl = `download.php?numero=${encodeURIComponent(numero)}`;
+            window.open(downloadUrl, '_blank');
+        });
+
+        // Event listener para el botón de ENVÍO INDIVIDUAL
+        document.getElementById('sendWhatsAppBtn').addEventListener('click', async function () {
+            const form = document.getElementById('documentForm');
+            const formData = new FormData(form);
+            const statusDiv = document.getElementById('status');
+            const numero = document.getElementById('numero').value;
+
+            if (!numero) {
+                alert("Por favor, busca un registro para poder enviar un documento.");
+                return;
+            }
+
+            const doSend = async () => {
+                statusDiv.textContent = 'Preparando y enviando por WhatsApp...';
+                try {
+                    const response = await fetch('enviar-whatsapp.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    statusDiv.textContent = result.message;
+                } catch (error) {
+                    statusDiv.textContent = 'Ocurrió un error al enviar el mensaje. Revisa la consola para más detalles.';
+                    console.error('Error al enviar mensaje:', error);
+                }
+            };
+
+            try {
+                const checkResponse = await fetch(`verificar-envio.php?numero=${encodeURIComponent(numero)}`);
+                const checkResult = await checkResponse.json();
+                if (checkResult.alreadySent) {
+                    if (confirm(checkResult.message)) {
+                        doSend();
+                    } else {
+                        statusDiv.textContent = 'Envío cancelado por el usuario.';
+                    }
+                } else {
+                    doSend();
+                }
+            } catch (error) {
+                statusDiv.textContent = 'Ocurrió un error en la verificación previa. Intentando envío de todas formas...';
+                console.error('Error en la verificación:', error);
+                doSend();
+            }
+        });
+
+        // Event listener para el botón de "Obtener Listado" (envío masivo - paso 1)
+        document.getElementById('sendAllBtn').addEventListener('click', async function () {
+            const statusDiv = document.getElementById('status');
+            const documentListDiv = document.getElementById('documentList');
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                alert("Por favor, selecciona un rango de fechas.");
+                return;
+            }
+
+            statusDiv.textContent = `Obteniendo listado de documentos entre ${startDate} y ${endDate}...`;
+
+            try {
+                const response = await fetch(`obtener-listado.php?from_date=${startDate}&to_date=${endDate}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    documentListDiv.innerHTML = '';
+                    if (result.data.length > 0) {
+                        result.data.forEach(doc => {
+                            const p = document.createElement('p');
+                            p.className = 'document-item';
+                            p.textContent = `Carátula: ${doc.numero} | Nombre: ${doc.nombre} | Estado: ${doc.estado}`;
+                            documentListDiv.appendChild(p);
+                        });
+                        statusDiv.textContent = `Se encontraron ${result.data.length} documentos. Revisa la lista y confirma el envío.`;
+                        document.getElementById('confirmSendBtn').style.display = 'block';
+                    } else {
+                        statusDiv.textContent = 'No se encontraron documentos que cumplan con los criterios.';
+                        documentListDiv.innerHTML = '';
+                        document.getElementById('confirmSendBtn').style.display = 'none';
+                    }
+                } else {
+                    statusDiv.textContent = 'Ocurrió un error al obtener el listado: ' + result.message;
+                }
+            } catch (error) {
+                statusDiv.textContent = 'Ocurrió un error al obtener el listado.';
+                console.error(error);
+            }
+        });
+
+        // Event listener para el botón de "Confirmar Envío" (envío masivo - paso 2)
+        document.getElementById('confirmSendBtn').addEventListener('click', async function () {
+            const statusDiv = document.getElementById('status');
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            statusDiv.textContent = 'Iniciando envío masivo, por favor no cierres esta ventana...';
+            document.getElementById('confirmSendBtn').style.display = 'none';
+
+            try {
+                const response = await fetch(`enviar-masivo-whatsapp.php?from_date=${startDate}&to_date=${endDate}`);
+                const result = await response.text();
+                statusDiv.innerHTML = '<h3>Reporte de Envío Masivo:</h3>' + result;
+            } catch (error) {
+                statusDiv.textContent = 'Ocurrió un error al iniciar el envío masivo.';
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+
+</html>
