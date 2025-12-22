@@ -17,39 +17,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(upload.array()); // Parse multipart/form-data for all routes or specific ones
 
-// --- Database Configuration (Loaded from config.php) ---
+// --- Database Configuration (Loaded from config.js) ---
 function loadConfig() {
-    const configPath = path.join(process.cwd(), 'config.php');
+    const configPath = path.join(process.cwd(), 'config.js');
 
     let config = {
         host: 'localhost',
         user: 'root',
         password: '',
-        database: 'cons_palto',
+        database: 'pdfblob',
         charset: 'utf8mb4'
     };
 
     try {
         if (fs.existsSync(configPath)) {
-            const content = fs.readFileSync(configPath, 'utf8');
+            // Delete from cache to allow reloading if needed (though only called once)
+            delete require.cache[require.resolve(configPath)];
+            const externalConfig = require(configPath);
+            config = { ...config, ...externalConfig };
 
-            // Regex handles single and double quotes
-            const hostMatch = content.match(/\$servername\s*=\s*["'](.+?)["']/);
-            const userMatch = content.match(/\$username\s*=\s*["'](.*?)["']/);
-            const passMatch = content.match(/\$password\s*=\s*["'](.*?)["']/);
-            const dbMatch = content.match(/\$dbname\s*=\s*["'](.+?)["']/);
-
-            if (hostMatch) config.host = hostMatch[1];
-            if (userMatch) config.user = userMatch[1];
-            if (passMatch) config.password = passMatch[1];
-            if (dbMatch) config.database = dbMatch[1];
-
-            console.log(`Configuración cargada desde config.php: ${config.host}@${config.database}`);
+            console.log(`Configuración cargada desde config.js: ${config.host}@${config.database}`);
         } else {
-            console.log('No se encontró config.php, usando valores por defecto.');
+            console.log('No se encontró config.js, usando valores por defecto.');
         }
     } catch (err) {
-        console.error('Error leyendo config.php:', err.message);
+        console.error('Error leyendo config.js:', err.message);
     }
     return config;
 }

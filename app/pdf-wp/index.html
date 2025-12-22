@@ -8,16 +8,16 @@
     <style>
         body {
             font-family: sans-serif;
-            max-width: 600px;
+            max-width: 980px; 
             margin: 50px auto;
             /* padding: 20px; */
             /* border: 1px solid #ccc; */
             border-radius: 8px;
             font-size: 16px;
-            
-            position: relative; 
-            z-index: 1; 
-            background: none; 
+
+            position: relative;
+            z-index: 1;
+            background: none;
         }
 
         body::before {
@@ -33,18 +33,18 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            opacity: 0.5; 
+            opacity: 0.5;
         }
 
-        .content-container {
-            max-width: 600px;
+        .content-container { 
+            max-width: 980px;
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 16px;
-            background-color: rgba(255, 255, 255, 0.85); 
+            background-color: rgba(255, 255, 255, 0.85);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            
+
         }
 
         h1 {
@@ -102,7 +102,7 @@
             color: black;
             padding: 10px;
         }
-        
+
         #confirmSendBtn {
             background-color: #025320;
             display: none;
@@ -113,6 +113,35 @@
             cursor: pointer;
             color: white;
             font-size: 16px;
+        }
+
+        #downloadReportBtn {
+            background-color: #0066cc;
+            display: none;
+            min-width: 150px;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+        }
+
+        #downloadCsvBtn {
+            background-color: #28a745;
+            display: none;
+            min-width: 150px;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
         }
 
         #previousBtn,
@@ -143,7 +172,7 @@
 
         .document-item:last-child {
             border-bottom: none;
-        }   
+        }
 
         #downloadBtn {
             display: none;
@@ -155,7 +184,7 @@
             cursor: default;
             color: inherit;
             box-shadow: none;
-}
+        }
     </style>
 </head>
 
@@ -163,54 +192,58 @@
     <div class="content-container">
         <h1>CBR - Envío de Certificado por WhatsApp</h1>
         <form id="documentForm">
-        <label for="numero">Número de Carátula:</label>
-        <input type="text" id="numero" name="numero" required>
-        <button type="button" id="searchBtn">Buscar</button>
+            <label for="numero">Número de Carátula:</label>
+            <input type="text" id="numero" name="numero" required>
+            <button type="button" id="searchBtn">Buscar</button>
 
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" readonly required>
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" readonly required>
 
-        <label for="rut">RUT:</label>
-        <input type="text" id="rut" name="rut" readonly required>
+            <label for="rut">RUT:</label>
+            <input type="text" id="rut" name="rut" readonly required>
 
-        <label for="telefono">Teléfono:</label>
-        <input type="text" id="telefono" name="telefono" readonly required>
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" name="telefono" readonly required>
 
-        <label for="estado">Estado:</label>
-        <input type="text" id="estado" name="estado" readonly required>
+            <label for="estado">Estado:</label>
+            <input type="text" id="estado" name="estado" readonly required>
 
-        <div class="button-group">
-            <button type="button" id="previousBtn">Anterior</button>
-            <button type="button" id="nextBtn">Siguiente</button>
-            <button type="button" id="downloadBtn">Descargar Documento</button>
-            <button type="button" id="sendWhatsAppBtn">Enviar por WhatsApp</button>
+            <div class="button-group">
+                <button type="button" id="previousBtn">Anterior</button>
+                <button type="button" id="nextBtn">Siguiente</button>
+                <button type="button" id="downloadBtn">Descargar Documento</button>
+                <button type="button" id="sendWhatsAppBtn">Enviar por WhatsApp</button>
+            </div>
+        </form>
+
+        <hr>
+
+        <div id="massiveSendForm">
+            <h2>Envío Masivo</h2>
+            <p>Selecciona un rango de fechas para enviar documentos en estado CARDEX o DESPACHADO.</p>
+            <label for="startDate">Fecha de Inicio:</label>
+            <input type="date" id="startDate" name="startDate">
+
+            <label for="endDate">Fecha de Fin:</label>
+            <input type="date" id="endDate" name="endDate">
+
+            <div class="button-group">
+                <button type="button" id="sendAllBtn">Obtener Listado</button>
+                <button type="button" id="confirmSendBtn">Confirmar Envío Masivo</button>
+            </div>
+            <div class="download-buttons">
+                <button type="button" id="downloadReportBtn">📄 Descargar TXT</button>
+                <button type="button" id="downloadCsvBtn">📊 Descargar Excel/CSV</button>
+            </div>
+
         </div>
-    </form>
 
-    <hr>
+        <div id="documentList"></div>
+        <div id="status"></div>
 
-    <div id="massiveSendForm">
-        <h2>Envío Masivo</h2>
-        <p>Selecciona un rango de fechas para enviar documentos en estado CARDEX o DESPACHADO.</p>
-        <label for="startDate">Fecha de Inicio:</label>
-        <input type="date" id="startDate" name="startDate">
-
-        <label for="endDate">Fecha de Fin:</label>
-        <input type="date" id="endDate" name="endDate">
-
-        <div class="button-group">
-            <button type="button" id="sendAllBtn">Obtener Listado</button>
-            <button type="button" id="confirmSendBtn">Confirmar Envío Masivo</button>
-        </div>
-        
     </div>
 
-    <div id="documentList"></div>
-    <div id="status"></div>
 
-    </div>
-    
-    
 
     <script>
         function populateForm(data) {
@@ -384,15 +417,203 @@
 
             statusDiv.textContent = 'Iniciando envío masivo, por favor no cierres esta ventana...';
             document.getElementById('confirmSendBtn').style.display = 'none';
+            document.getElementById('downloadReportBtn').style.display = 'none';
+            document.getElementById('downloadCsvBtn').style.display = 'none';
 
             try {
                 const response = await fetch(`enviar-masivo-whatsapp.php?from_date=${startDate}&to_date=${endDate}`);
                 const result = await response.text();
                 statusDiv.innerHTML = '<h3>Reporte de Envío Masivo:</h3>' + result;
+
+                // Guardar el resultado para descarga
+                window.lastReportContent = result;
+                window.lastReportDates = { startDate, endDate };
+                document.getElementById('downloadReportBtn').style.display = 'inline-block';
+                document.getElementById('downloadCsvBtn').style.display = 'inline-block';
             } catch (error) {
                 statusDiv.textContent = 'Ocurrió un error al iniciar el envío masivo.';
                 console.error(error);
             }
+        });
+
+        // Event listener para descargar el informe
+        document.getElementById('downloadReportBtn').addEventListener('click', function () {
+            if (!window.lastReportContent) {
+                alert('No hay informe disponible para descargar.');
+                return;
+            }
+
+            // Parsear el contenido HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = window.lastReportContent;
+            const lines = (tempDiv.textContent || tempDiv.innerText).split('\n').filter(line => line.trim());
+
+            // Arrays para clasificar resultados
+            const exitosos = [];
+            const fallidos = [];
+            let resumen = [];
+
+            // Parsear cada línea
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('✅') || trimmed.includes('Envío Exitoso') || trimmed.includes('enviado')) {
+                    // Extraer información del éxito
+                    const caratulaMatch = trimmed.match(/Carátula:\s*(\d+)/);
+                    const firmaMatch = trimmed.match(/Firma:\s*(\d+)/);
+                    exitosos.push({
+                        caratula: caratulaMatch ? caratulaMatch[1] : 'N/A',
+                        firma: firmaMatch ? firmaMatch[1] : 'N/A',
+                        estado: 'ENVIADO'
+                    });
+                } else if (trimmed.startsWith('❌') || trimmed.startsWith('⚠️')) {
+                    // Extraer información del error
+                    const caratulaMatch = trimmed.match(/Carátula:\s*(\d+)/);
+                    const firmaMatch = trimmed.match(/Firma:\s*(\d+)/);
+                    let error = trimmed.replace(/.*Carátula:\s*\d+\)?/, '').trim();
+                    if (!error) error = trimmed.substring(0, 80);
+                    fallidos.push({
+                        caratula: caratulaMatch ? caratulaMatch[1] : 'N/A',
+                        firma: firmaMatch ? firmaMatch[1] : 'N/A',
+                        error: error.substring(0, 50)
+                    });
+                } else if (trimmed.includes('Documentos') || trimmed.includes('Proceso') || trimmed.includes('encontrados')) {
+                    resumen.push(trimmed);
+                }
+            });
+
+            // Generar el informe formateado
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10);
+            const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '-');
+
+            let report = '';
+            report += '╔══════════════════════════════════════════════════════════════════╗\n';
+            report += '║                    INFORME DE ENVÍO MASIVO                       ║\n';
+            report += '╠══════════════════════════════════════════════════════════════════╣\n';
+            report += `║  Generado: ${now.toLocaleString().padEnd(52)}║\n`;
+            report += `║  Rango: ${window.lastReportDates.startDate} a ${window.lastReportDates.endDate}`.padEnd(67) + '║\n';
+            report += '╚══════════════════════════════════════════════════════════════════╝\n\n';
+
+            // Tabla de exitosos
+            if (exitosos.length > 0) {
+                report += '┌─────────────────────────────────────────────────────────────────┐\n';
+                report += '│                      ENVÍOS EXITOSOS                            │\n';
+                report += '├──────────────┬──────────────┬────────────────────────────────────┤\n';
+                report += '│   CARÁTULA   │    FIRMA     │              ESTADO               │\n';
+                report += '├──────────────┼──────────────┼────────────────────────────────────┤\n';
+                exitosos.forEach(item => {
+                    report += `│ ${item.caratula.padEnd(12)} │ ${item.firma.padEnd(12)} │ ${item.estado.padEnd(34)} │\n`;
+                });
+                report += '└──────────────┴──────────────┴────────────────────────────────────┘\n\n';
+            }
+
+            // Tabla de fallidos
+            if (fallidos.length > 0) {
+                report += '┌─────────────────────────────────────────────────────────────────┐\n';
+                report += '│                      ENVÍOS FALLIDOS                            │\n';
+                report += '├──────────────┬──────────────┬────────────────────────────────────┤\n';
+                report += '│   CARÁTULA   │    FIRMA     │              ERROR                │\n';
+                report += '├──────────────┼──────────────┼────────────────────────────────────┤\n';
+                fallidos.forEach(item => {
+                    report += `│ ${item.caratula.padEnd(12)} │ ${item.firma.padEnd(12)} │ ${item.error.substring(0, 34).padEnd(34)} │\n`;
+                });
+                report += '└──────────────┴──────────────┴────────────────────────────────────┘\n\n';
+            }
+
+            // Resumen
+            report += '┌─────────────────────────────────────────────────────────────────┐\n';
+            report += '│                         RESUMEN                                 │\n';
+            report += '├─────────────────────────────────────────────────────────────────┤\n';
+            report += `│  Total Exitosos: ${exitosos.length.toString().padEnd(46)}│\n`;
+            report += `│  Total Fallidos: ${fallidos.length.toString().padEnd(46)}│\n`;
+            report += `│  Total Procesados: ${(exitosos.length + fallidos.length).toString().padEnd(44)}│\n`;
+            report += '└─────────────────────────────────────────────────────────────────┘\n';
+
+            // Crear y descargar archivo
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `informe_envio_${dateStr}_${timeStr}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Event listener para descargar CSV
+        document.getElementById('downloadCsvBtn').addEventListener('click', function () {
+            if (!window.lastReportContent) {
+                alert('No hay informe disponible para descargar.');
+                return;
+            }
+
+            // Parsear el contenido HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = window.lastReportContent;
+            const lines = (tempDiv.textContent || tempDiv.innerText).split('\n').filter(line => line.trim());
+
+            // Arrays para clasificar resultados
+            const registros = [];
+
+            // Parsear cada línea
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('✅') || trimmed.includes('Envío Exitoso') || trimmed.includes('enviado')) {
+                    const caratulaMatch = trimmed.match(/Carátula:\s*(\d+)/);
+                    const firmaMatch = trimmed.match(/Firma:\s*(\d+)/);
+                    registros.push({
+                        caratula: caratulaMatch ? caratulaMatch[1] : '',
+                        firma: firmaMatch ? firmaMatch[1] : '',
+                        estado: 'ENVIADO',
+                        error: ''
+                    });
+                } else if (trimmed.startsWith('❌') || trimmed.startsWith('⚠️')) {
+                    const caratulaMatch = trimmed.match(/Carátula:\s*(\d+)/);
+                    const firmaMatch = trimmed.match(/Firma:\s*(\d+)/);
+                    let error = trimmed.replace(/.*Carátula:\s*\d+\)?/, '').trim();
+                    if (!error) error = trimmed.substring(2, 100);
+                    registros.push({
+                        caratula: caratulaMatch ? caratulaMatch[1] : '',
+                        firma: firmaMatch ? firmaMatch[1] : '',
+                        estado: 'FALLIDO',
+                        error: error.replace(/[,;]/g, ' ').substring(0, 80)
+                    });
+                }
+            });
+
+            // Generar CSV
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10);
+            const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '-');
+
+            let csv = '\uFEFF'; // BOM para Excel
+            csv += 'INFORME DE ENVÍO MASIVO\n';
+            csv += `Generado:,${now.toLocaleString()}\n`;
+            csv += `Rango:,${window.lastReportDates.startDate} a ${window.lastReportDates.endDate}\n`;
+            csv += '\n';
+            csv += 'CARÁTULA,FIRMA,ESTADO,ERROR\n';
+
+            registros.forEach(r => {
+                csv += `${r.caratula},${r.firma},${r.estado},"${r.error}"\n`;
+            });
+
+            csv += '\n';
+            csv += 'RESUMEN\n';
+            csv += `Total Exitosos:,${registros.filter(r => r.estado === 'ENVIADO').length}\n`;
+            csv += `Total Fallidos:,${registros.filter(r => r.estado === 'FALLIDO').length}\n`;
+            csv += `Total Procesados:,${registros.length}\n`;
+
+            // Crear y descargar archivo
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `informe_envio_${dateStr}_${timeStr}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         });
     </script>
 </body>
